@@ -1,0 +1,674 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Hugging Face 操作指南</title>
+<style>
+:root{
+  --bg:#ffffff; --bg-soft:#f6f7f9; --bg-code:#f2f3f5;
+  --fg:#1f2328; --fg-muted:#59636e; --line:#d8dee4; --line-strong:#b9c1c9;
+  --accent:#c25e00; --accent-soft:#fff4e5; --link:#0b5cad;
+  --d-neutral-fill:#F1EFE8; --d-neutral-stroke:#888780; --d-neutral-text:#2C2C2A; --d-neutral-sub:#5F5E5A;
+  --d-blue-fill:#E6F1FB; --d-blue-inner:#B5D4F4; --d-blue-stroke:#185FA5; --d-blue-text:#0C447C; --d-blue-sub:#185FA5;
+  --d-teal-fill:#E1F5EE; --d-teal-stroke:#0F6E56; --d-teal-text:#04342C; --d-teal-sub:#0F6E56;
+  --d-amber-fill:#FAEEDA; --d-amber-stroke:#854F0B; --d-amber-text:#412402; --d-amber-sub:#854F0B;
+  --d-panel:#FFFFFF; --d-line:#888780;
+}
+@media (prefers-color-scheme: dark){
+  :root{
+    --bg:#15171a; --bg-soft:#1c1f23; --bg-code:#1c1f23;
+    --fg:#e7e9ec; --fg-muted:#9aa4ae; --line:#31353b; --line-strong:#454b53;
+    --accent:#f0a44a; --accent-soft:#2a2116; --link:#6cb6ff;
+    --d-neutral-fill:#2C2C2A; --d-neutral-stroke:#B4B2A9; --d-neutral-text:#F1EFE8; --d-neutral-sub:#D3D1C7;
+    --d-blue-fill:#042C53; --d-blue-inner:#0C447C; --d-blue-stroke:#85B7EB; --d-blue-text:#E6F1FB; --d-blue-sub:#B5D4F4;
+    --d-teal-fill:#04342C; --d-teal-stroke:#5DCAA5; --d-teal-text:#E1F5EE; --d-teal-sub:#9FE1CB;
+    --d-amber-fill:#412402; --d-amber-stroke:#EF9F27; --d-amber-text:#FAEEDA; --d-amber-sub:#FAC775;
+    --d-panel:#15171a; --d-line:#888780;
+  }
+}
+*{box-sizing:border-box}
+body{
+  margin:0; padding:0 20px 80px;
+  background:var(--bg); color:var(--fg);
+  font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;
+  font-size:15px; line-height:1.75; -webkit-font-smoothing:antialiased;
+}
+.wrap{max-width:900px;margin:0 auto}
+header{padding:56px 0 28px;border-bottom:1px solid var(--line)}
+h1{font-size:30px;line-height:1.3;margin:0 0 10px;font-weight:600;letter-spacing:-.02em}
+.sub{color:var(--fg-muted);font-size:14px;margin:0}
+.badge{display:inline-block;background:var(--accent-soft);color:var(--accent);border-radius:999px;padding:2px 10px;font-size:12px;margin-right:6px}
+h2{font-size:21px;margin:52px 0 14px;font-weight:600;padding-bottom:8px;border-bottom:1px solid var(--line);letter-spacing:-.01em}
+h2 .idx{color:var(--accent);font-variant-numeric:tabular-nums;margin-right:8px}
+h3{font-size:16px;margin:30px 0 10px;font-weight:600}
+p{margin:10px 0}
+a{color:var(--link);text-decoration:none;border-bottom:1px solid color-mix(in srgb,var(--link) 35%,transparent)}
+a:hover{border-bottom-color:var(--link)}
+ul,ol{margin:10px 0;padding-left:22px}
+li{margin:4px 0}
+code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:.88em;
+  background:var(--bg-code);border:1px solid var(--line);border-radius:5px;padding:1px 5px}
+pre{margin:12px 0;background:var(--bg-code);border:1px solid var(--line);border-radius:10px;
+  padding:14px 16px;overflow-x:auto;position:relative}
+pre code{background:none;border:none;padding:0;font-size:13px;line-height:1.7}
+.cap{font-size:13px;color:var(--fg-muted);margin:-4px 0 16px;text-align:center}
+figure{margin:20px 0 8px;background:var(--bg-soft);border:1px solid var(--line);border-radius:14px;padding:18px 14px 8px}
+figure svg{display:block;width:100%;height:auto}
+table{width:100%;border-collapse:collapse;margin:14px 0;font-size:14px}
+th,td{border:1px solid var(--line);padding:8px 11px;text-align:left;vertical-align:top}
+th{background:var(--bg-soft);font-weight:600;white-space:nowrap}
+td code{white-space:nowrap}
+.note{border-left:3px solid var(--accent);background:var(--bg-soft);border-radius:0 8px 8px 0;
+  padding:12px 16px;margin:16px 0;font-size:14px}
+.note strong{color:var(--accent)}
+.toc{background:var(--bg-soft);border:1px solid var(--line);border-radius:12px;padding:16px 20px;margin:28px 0}
+.toc ol{margin:0;padding-left:20px;columns:2;column-gap:32px}
+@media(max-width:640px){.toc ol{columns:1}}
+.toc a{border:none;color:var(--fg)}
+.toc a:hover{color:var(--accent)}
+.flow{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:10px;margin:22px 0}
+@media(max-width:700px){.flow{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.step{background:var(--bg-soft);border:1px solid var(--line);border-radius:10px;padding:12px 12px 14px}
+.step b{display:block;font-size:14px;font-weight:600;margin:6px 0 2px}
+.step i{display:block;font-style:normal;font-size:12px;color:var(--fg-muted);
+  font-family:ui-monospace,SFMono-Regular,Menlo,monospace;word-break:break-all}
+.n{display:inline-flex;align-items:center;justify-content:center;width:20px;height:20px;
+  border-radius:50%;background:var(--accent);color:#fff;font-size:12px;font-weight:600}
+footer{margin-top:64px;padding-top:20px;border-top:1px solid var(--line);color:var(--fg-muted);font-size:13px}
+@media print{
+  body{padding:0;font-size:12px}
+  h2{page-break-after:avoid} figure,pre,table{page-break-inside:avoid}
+  a{color:var(--fg);border:none}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <h1>Hugging Face 操作指南</h1>
+  <p class="sub">
+    <span class="badge">命令 → 参数 → 示例</span>
+    <span class="badge">面向中文网络环境</span>
+    从装好到把模型跑起来、把自己的模型传上去，一份搞定。
+  </p>
+  <p class="sub" style="margin-top:12px">核对时间：2026-09 ｜ 适用于 <code>huggingface_hub ≥ 1.0</code>、<code>transformers ≥ 5.0</code></p>
+</header>
+
+<div class="toc">
+  <ol>
+    <li><a href="#s1">先搞清楚三件事</a></li>
+    <li><a href="#s2">安装与登录</a></li>
+    <li><a href="#s3">下载模型与数据集</a></li>
+    <li><a href="#s4">搞懂本地缓存</a></li>
+    <li><a href="#s5">国内网络加速</a></li>
+    <li><a href="#s6">上传与仓库管理</a></li>
+    <li><a href="#s7">在 Python 里调用</a></li>
+    <li><a href="#s8">Spaces 部署一个应用</a></li>
+    <li><a href="#s9">排障速查表</a></li>
+    <li><a href="#s10">一页速查卡</a></li>
+  </ol>
+</div>
+
+<h2 id="s1"><span class="idx">01</span>先搞清楚三件事</h2>
+
+<p>Hugging Face 常被误以为是「一个下模型的地方」，其实它是<strong>三层结构</strong>：本地工具负责搬运，云端 Hub 负责托管，上层生态负责把模型真正跑起来。</p>
+
+<figure>
+<svg viewBox="0 0 680 396" role="img" xmlns="http://www.w3.org/2000/svg">
+<title>Hugging Face 生态三层结构</title>
+<desc>本地客户端通过 hf 命令行、Python SDK 或 git 与云端 Hub 交互，Hub 上托管模型、数据集、Spaces 与对象存储；上层由 transformers 等库加载并在 vLLM 或云端托管运行。</desc>
+<defs>
+<marker id="a1" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+<path d="M2 1L8 5L2 9" fill="none" stroke="context-stroke" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+</marker>
+</defs>
+<text x="40" y="48" font-size="12" fill="var(--d-neutral-sub)">本地 · 你的机器</text>
+<rect x="40" y="58" width="180" height="56" rx="8" fill="var(--d-neutral-fill)" stroke="var(--d-neutral-stroke)" stroke-width="0.5"/>
+<text x="130" y="76" font-size="14" font-weight="500" fill="var(--d-neutral-text)" text-anchor="middle" dominant-baseline="central">hf 命令行</text>
+<text x="130" y="94" font-size="13" fill="var(--d-neutral-sub)" text-anchor="middle" dominant-baseline="central">装完即用</text>
+<rect x="250" y="58" width="180" height="56" rx="8" fill="var(--d-neutral-fill)" stroke="var(--d-neutral-stroke)" stroke-width="0.5"/>
+<text x="340" y="76" font-size="14" font-weight="500" fill="var(--d-neutral-text)" text-anchor="middle" dominant-baseline="central">huggingface_hub</text>
+<text x="340" y="94" font-size="13" fill="var(--d-neutral-sub)" text-anchor="middle" dominant-baseline="central">Python SDK</text>
+<rect x="460" y="58" width="180" height="56" rx="8" fill="var(--d-neutral-fill)" stroke="var(--d-neutral-stroke)" stroke-width="0.5"/>
+<text x="550" y="76" font-size="14" font-weight="500" fill="var(--d-neutral-text)" text-anchor="middle" dominant-baseline="central">git + git-lfs</text>
+<text x="550" y="94" font-size="13" fill="var(--d-neutral-sub)" text-anchor="middle" dominant-baseline="central">版本化操作仓库</text>
+<line x1="340" y1="120" x2="340" y2="144" stroke="var(--d-line)" stroke-width="1.5" marker-start="url(#a1)" marker-end="url(#a1)"/>
+<text x="352" y="136" font-size="12" fill="var(--d-neutral-sub)">上传 / 下载</text>
+<rect x="40" y="150" width="600" height="112" rx="20" fill="var(--d-blue-fill)" stroke="var(--d-blue-stroke)" stroke-width="0.5"/>
+<text x="60" y="174" font-size="14" font-weight="500" fill="var(--d-blue-text)">Hugging Face Hub</text>
+<text x="200" y="174" font-size="12" fill="var(--d-blue-sub)">huggingface.co</text>
+<rect x="60" y="188" width="125" height="54" rx="8" fill="var(--d-blue-inner)" stroke="var(--d-blue-stroke)" stroke-width="0.5"/>
+<text x="122" y="206" font-size="14" font-weight="500" fill="var(--d-blue-text)" text-anchor="middle" dominant-baseline="central">Models</text>
+<text x="122" y="224" font-size="13" fill="var(--d-blue-sub)" text-anchor="middle" dominant-baseline="central">模型权重</text>
+<rect x="205" y="188" width="125" height="54" rx="8" fill="var(--d-blue-inner)" stroke="var(--d-blue-stroke)" stroke-width="0.5"/>
+<text x="267" y="206" font-size="14" font-weight="500" fill="var(--d-blue-text)" text-anchor="middle" dominant-baseline="central">Datasets</text>
+<text x="267" y="224" font-size="13" fill="var(--d-blue-sub)" text-anchor="middle" dominant-baseline="central">数据集</text>
+<rect x="350" y="188" width="125" height="54" rx="8" fill="var(--d-blue-inner)" stroke="var(--d-blue-stroke)" stroke-width="0.5"/>
+<text x="412" y="206" font-size="14" font-weight="500" fill="var(--d-blue-text)" text-anchor="middle" dominant-baseline="central">Spaces</text>
+<text x="412" y="224" font-size="13" fill="var(--d-blue-sub)" text-anchor="middle" dominant-baseline="central">应用托管</text>
+<rect x="495" y="188" width="125" height="54" rx="8" fill="var(--d-blue-inner)" stroke="var(--d-blue-stroke)" stroke-width="0.5"/>
+<text x="557" y="206" font-size="14" font-weight="500" fill="var(--d-blue-text)" text-anchor="middle" dominant-baseline="central">Buckets</text>
+<text x="557" y="224" font-size="13" fill="var(--d-blue-sub)" text-anchor="middle" dominant-baseline="central">对象存储</text>
+<line x1="340" y1="268" x2="340" y2="300" stroke="var(--d-line)" stroke-width="1.5" marker-start="url(#a1)" marker-end="url(#a1)"/>
+<text x="352" y="288" font-size="12" fill="var(--d-neutral-sub)">加载 / 部署</text>
+<text x="40" y="314" font-size="12" fill="var(--d-teal-sub)">上层生态 · 加载与服务化</text>
+<rect x="40" y="324" width="180" height="56" rx="8" fill="var(--d-teal-fill)" stroke="var(--d-teal-stroke)" stroke-width="0.5"/>
+<text x="130" y="342" font-size="14" font-weight="500" fill="var(--d-teal-text)" text-anchor="middle" dominant-baseline="central">transformers</text>
+<text x="130" y="360" font-size="13" fill="var(--d-teal-sub)" text-anchor="middle" dominant-baseline="central">模型加载与推理</text>
+<rect x="250" y="324" width="180" height="56" rx="8" fill="var(--d-teal-fill)" stroke="var(--d-teal-stroke)" stroke-width="0.5"/>
+<text x="340" y="342" font-size="14" font-weight="500" fill="var(--d-teal-text)" text-anchor="middle" dominant-baseline="central">vLLM · SGLang</text>
+<text x="340" y="360" font-size="13" fill="var(--d-teal-sub)" text-anchor="middle" dominant-baseline="central">高吞吐在线服务</text>
+<rect x="460" y="324" width="180" height="56" rx="8" fill="var(--d-teal-fill)" stroke="var(--d-teal-stroke)" stroke-width="0.5"/>
+<text x="550" y="342" font-size="14" font-weight="500" fill="var(--d-teal-text)" text-anchor="middle" dominant-baseline="central">Spaces · Endpoints</text>
+<text x="550" y="360" font-size="13" fill="var(--d-teal-sub)" text-anchor="middle" dominant-baseline="central">零运维云端托管</text>
+</svg>
+</figure>
+<p class="cap">图 1　Hugging Face 生态的三层结构</p>
+
+<h3>Hub 上的四类东西</h3>
+<table>
+<tr><th>类型</th><th>是什么</th><th>典型路径</th></tr>
+<tr><td><code>model</code></td><td>模型权重 + 配置 + 分词器，下模型主要就是下这个</td><td><code>Qwen/Qwen3-0.6B</code></td></tr>
+<tr><td><code>dataset</code></td><td>数据集，可含 parquet / arrow 等多种格式</td><td><code>wikitext</code></td></tr>
+<tr><td><code>space</code></td><td>跑在 Hub 上的小应用（Gradio / Docker / 静态页）</td><td><code>username/my-space</code></td></tr>
+<tr><td>bucket</td><td>纯对象存储，适合放 checkpoint、日志，不要求是标准仓库结构</td><td><code>hf://buckets/user/bucket</code></td></tr>
+</table>
+
+<div class="note">
+<strong>最重要的版本变更：</strong><code>huggingface-cli</code> 已经不存在了。它在 <code>huggingface_hub</code> 0.34（2025-07）被改名为 <code>hf</code>，并在 1.0（2025-10）中<strong>彻底移除</strong>。网上 2025 年年中之前的教程里那些 <code>huggingface-cli download ...</code> 命令现在跑不通，全部换成 <code>hf</code>，登录相关命令收到 <code>hf auth</code> 子命令下。
+</div>
+
+<h3>一次典型工作流</h3>
+<div class="flow">
+  <div class="step"><span class="n">1</span><b>登录</b><i>hf auth login</i></div>
+  <div class="step"><span class="n">2</span><b>找模型</b><i>hf models ls</i></div>
+  <div class="step"><span class="n">3</span><b>下载</b><i>hf download</i></div>
+  <div class="step"><span class="n">4</span><b>本地跑</b><i>transformers</i></div>
+  <div class="step"><span class="n">5</span><b>传回去</b><i>hf upload</i></div>
+</div>
+
+<h2 id="s2"><span class="idx">02</span>安装与登录</h2>
+
+<h3>安装</h3>
+<p>两种装法，二选一即可：</p>
+<pre><code># 方式 A：pip 安装（通常你已经有 Python 环境，用它最省事）
+pip install -U "huggingface_hub[cli]"
+
+# 方式 B：官方独立安装脚本（不依赖 Python，装在 ~/.local/bin/hf）
+curl -LsSf https://hf.co/cli/install.sh | bash -s
+
+# Windows PowerShell
+powershell -ExecutionPolicy ByPass -c "irm https://hf.co/cli/install.ps1 | iex"</code></pre>
+
+<p>装完先自检：</p>
+<pre><code>hf version     # 版本号，1.x 才算新 CLI
+hf env         # 打印完整环境信息：Python 版本、缓存目录、当前 endpoint、token 来源</code></pre>
+
+<div class="note">
+<strong>排查网络问题请第一眼看 <code>hf env</code>。</strong>它会明确告诉你 <code>HF_ENDPOINT</code> 当前是什么值、缓存目录在哪 —— 九成的「为什么还是走官方站」都是环境变量没生效。
+</div>
+
+<h3>登录</h3>
+<p>先生成 Token：打开 <a href="https://huggingface.co/settings/tokens">huggingface.co/settings/tokens</a>，新建一个 <code>Read</code> 权限即可（要上传则选 <code>Write</code>）。</p>
+
+<table>
+<tr><th>命令</th><th>作用</th></tr>
+<tr><td><code>hf auth login</code></td><td>交互式登录，可走浏览器授权或粘贴 Token</td></tr>
+<tr><td><code>hf auth login --token $HF_TOKEN</code></td><td>非交互登录，适合 CI / 脚本</td></tr>
+<tr><td><code>hf auth whoami</code></td><td>确认当前登录的是哪个账号</td></tr>
+<tr><td><code>hf auth list</code></td><td>列出本机保存的所有 Token</td></tr>
+<tr><td><code>hf auth switch</code></td><td>多账号之间切换</td></tr>
+<tr><td><code>hf auth token</code></td><td>把当前 Token 打到 stdout（不要提交进 Git）</td></tr>
+<tr><td><code>hf auth logout</code></td><td>登出指定 Token</td></tr>
+</table>
+
+<p>CI 或容器环境里，直接给环境变量更干净，不需要写文件：</p>
+<pre><code>export HF_TOKEN=hf_xxxxxxxxxxxxxxxxxxxxx
+hf download Qwen/Qwen3-0.6B      # 自动读取 HF_TOKEN</code></pre>
+
+<h2 id="s3"><span class="idx">03</span>下载模型与数据集</h2>
+
+<p>下载只用一条命令：<code>hf download &lt;REPO_ID&gt;</code>。模型是默认类型，所以下模型不用加任何类型参数。</p>
+
+<h3>命令结构</h3>
+<pre><code>hf download REPO_ID [--type model|dataset|space] [选项...]
+#  ↓            要下的仓库   不写默认 model
+#  例：hf download Qwen/Qwen3-0.6B --local-dir ./qwen3</code></pre>
+
+<h3>常用参数</h3>
+<table>
+<tr><th>参数</th><th>作用</th></tr>
+<tr><td><code>--local-dir ./qwen3</code></td><td>落到你指定的目录，里面是<strong>真实文件</strong>而不是软链接，所见即所得</td></tr>
+<tr><td><code>--include "*.safetensors"</code></td><td>只下匹配的文件，可写多个模式</td></tr>
+<tr><td><code>--exclude "*.bin" "*.h5"</code></td><td>排除匹配的文件，常用于跳过用不上的重复权重</td></tr>
+<tr><td><code>--revision &lt;分支/标签/commit&gt;</code></td><td>锁定版本，例如 <code>main</code>、<code>v1.0</code>、<code>refs/pr/1</code></td></tr>
+<tr><td><code>--type dataset|space</code></td><td>指定仓库类型（旧版本写作 <code>--repo-type</code>，两者择一，报错就换另一个）</td></tr>
+<tr><td><code>--cache-dir &lt;路径&gt;</code></td><td>临时指定缓存目录</td></tr>
+<tr><td><code>--max-workers 8</code></td><td>并发下载线程数，网络好时可以调大</td></tr>
+<tr><td><code>--dry-run</code></td><td>只列出会下载哪些文件，不真下 —— 摸体积时很有用</td></tr>
+<tr><td><code>--force-download</code></td><td>强制重新下载，忽略已有缓存</td></tr>
+</table>
+
+<h3>常见场景示例</h3>
+<pre><code># 1. 整仓下载到普通目录
+hf download Qwen/Qwen3-0.6B --local-dir ./qwen3
+
+# 2. 只要 safetensors 权重和 json 配置，跳过 .bin
+hf download Qwen/Qwen3-0.6B --include "*.safetensors" "*.json"
+
+# 3. 只下某一个文件（体积大时先看看大小）
+hf download Qwen/Qwen3-0.6B --include "config.json"
+
+# 4. 先空跑看清单，再决定下不下
+hf download meta-llama/Llama-3.1-8B --dry-run
+
+# 5. 下数据集
+hf download --type dataset wikitext --local-dir ./wikitext
+#   旧版 CLI 请写成 --repo-type dataset
+
+# 6. 锁定某个版本（可复现）
+hf download Qwen/Qwen3-0.6B --revision v0.1.0
+
+# 7. 下别人的 Space 源码来改
+hf download --type space username/my-space --local-dir ./my-space</code></pre>
+
+<div class="note">
+<strong>不确定模型叫什么名字？</strong>在网页搜索框直接搜，URL 里 <code>huggingface.co/&lt;用户名&gt;/&lt;仓库名&gt;</code> 的斜杠后那段就是 <code>REPO_ID</code>。也可以用 <code>hf models ls</code> 在终端里浏览。
+</div>
+
+<h2 id="s4"><span class="idx">04</span>搞懂本地缓存</h2>
+
+<p>不加 <code>--local-dir</code> 时，文件会进入缓存目录。这个目录的结构第一次看会有点懵，因为它用了「真实文件 + 软链接视图」两级设计：</p>
+
+<figure>
+<svg viewBox="0 0 680 396" role="img" xmlns="http://www.w3.org/2000/svg">
+<title>Hugging Face 本地缓存目录结构</title>
+<desc>每个仓库在 hub 目录下有独立文件夹，内含 blobs 真实文件、snapshots 按 commit 隔离的软链接视图，以及 refs 分支指针。</desc>
+<defs>
+<marker id="a2" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+<path d="M2 1L8 5L2 9" fill="none" stroke="context-stroke" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+</marker>
+</defs>
+<rect x="40" y="40" width="600" height="336" rx="24" fill="var(--d-neutral-fill)" stroke="var(--d-neutral-stroke)" stroke-width="0.5"/>
+<text x="60" y="64" font-size="12" fill="var(--d-neutral-sub)">~/.cache/huggingface/hub</text>
+<rect x="60" y="76" width="560" height="280" rx="16" fill="var(--d-blue-fill)" stroke="var(--d-blue-stroke)" stroke-width="0.5"/>
+<text x="76" y="98" font-size="13" font-weight="500" fill="var(--d-blue-text)">models--Qwen--Qwen3-0.6B</text>
+<rect x="76" y="110" width="180" height="180" rx="12" fill="var(--d-panel)" stroke="var(--d-blue-stroke)" stroke-width="0.5"/>
+<text x="88" y="128" font-size="14" font-weight="500" fill="var(--d-blue-text)">blobs/</text>
+<text x="88" y="146" font-size="12" fill="var(--d-blue-sub)">真实文件 · sha256 命名</text>
+<rect x="272" y="110" width="332" height="180" rx="12" fill="var(--d-panel)" stroke="var(--d-blue-stroke)" stroke-width="0.5"/>
+<text x="284" y="128" font-size="14" font-weight="500" fill="var(--d-blue-text)">snapshots/&lt;commit&gt;/</text>
+<text x="284" y="146" font-size="12" fill="var(--d-blue-sub)">软链接视图 · 按 commit 隔离</text>
+<rect x="88" y="156" width="156" height="34" rx="6" fill="var(--d-blue-inner)" stroke="var(--d-blue-stroke)" stroke-width="0.5"/>
+<text x="166" y="173" font-size="12" fill="var(--d-blue-text)" text-anchor="middle" dominant-baseline="central">a1b2c3…safetensors</text>
+<rect x="88" y="198" width="156" height="34" rx="6" fill="var(--d-blue-inner)" stroke="var(--d-blue-stroke)" stroke-width="0.5"/>
+<text x="166" y="215" font-size="12" fill="var(--d-blue-text)" text-anchor="middle" dominant-baseline="central">9f8e7d…config.json</text>
+<rect x="88" y="240" width="156" height="34" rx="6" fill="var(--d-blue-inner)" stroke="var(--d-blue-stroke)" stroke-width="0.5"/>
+<text x="166" y="257" font-size="12" fill="var(--d-blue-text)" text-anchor="middle" dominant-baseline="central">d4e5f6…tokenizer</text>
+<rect x="284" y="156" width="308" height="34" rx="6" fill="var(--d-teal-fill)" stroke="var(--d-teal-stroke)" stroke-width="0.5"/>
+<text x="438" y="173" font-size="12" fill="var(--d-teal-text)" text-anchor="middle" dominant-baseline="central">model.safetensors → a1b2c3…</text>
+<rect x="284" y="198" width="308" height="34" rx="6" fill="var(--d-teal-fill)" stroke="var(--d-teal-stroke)" stroke-width="0.5"/>
+<text x="438" y="215" font-size="12" fill="var(--d-teal-text)" text-anchor="middle" dominant-baseline="central">config.json → 9f8e7d…</text>
+<rect x="284" y="240" width="308" height="34" rx="6" fill="var(--d-teal-fill)" stroke="var(--d-teal-stroke)" stroke-width="0.5"/>
+<text x="438" y="257" font-size="12" fill="var(--d-teal-text)" text-anchor="middle" dominant-baseline="central">tokenizer.json → d4e5f6…</text>
+<line x1="280" y1="173" x2="248" y2="173" stroke="var(--d-line)" stroke-width="1" stroke-dasharray="3 3" marker-end="url(#a2)"/>
+<line x1="280" y1="215" x2="248" y2="215" stroke="var(--d-line)" stroke-width="1" stroke-dasharray="3 3" marker-end="url(#a2)"/>
+<line x1="280" y1="257" x2="248" y2="257" stroke="var(--d-line)" stroke-width="1" stroke-dasharray="3 3" marker-end="url(#a2)"/>
+<rect x="76" y="300" width="528" height="40" rx="8" fill="var(--d-amber-fill)" stroke="var(--d-amber-stroke)" stroke-width="0.5"/>
+<text x="92" y="320" font-size="13" fill="var(--d-amber-text)">refs/main → 7c8d9e5f</text>
+<text x="252" y="320" font-size="12" fill="var(--d-amber-sub)">主分支当前指向哪个 commit</text>
+</svg>
+</figure>
+<p class="cap">图 2　缓存目录：blobs 存真实文件，snapshots 只是指向它们的软链接</p>
+
+<p>为什么要这么设计？因为<strong>同一个文件可能被多个 commit 引用</strong>。真实数据只存一份放在 <code>blobs/</code> 里（用内容哈希命名，天然去重），<code>snapshots/&lt;commit&gt;/</code> 下按「文件名 → blob」组织成软链接，于是切版本、回滚只是换一批链接，不需要重新下载 GB 级文件。</p>
+
+<h3>缓存管理命令</h3>
+<table>
+<tr><th>命令</th><th>作用</th></tr>
+<tr><td><code>hf cache list</code></td><td>列出已缓存的仓库及占用空间</td></tr>
+<tr><td><code>hf cache list --revisions</code></td><td>连各个 revision 一起列，找出旧 commit 占了多少</td></tr>
+<tr><td><code>hf cache prune</code></td><td>清掉不再被任何 ref 引用的游离 revision</td></tr>
+<tr><td><code>hf cache rm &lt;repo_id&gt;</code></td><td>删除某个仓库的全部缓存，腾空间主用这条</td></tr>
+<tr><td><code>hf cache verify &lt;repo_id&gt;</code></td><td>校验下载完整性，怀疑文件损坏时用</td></tr>
+</table>
+
+<pre><code># 看看谁最占地方
+hf cache list
+
+# 删掉一个大模型的缓存
+hf cache rm Qwen/Qwen3-0.6B
+
+# 清理历史版本留下的孤儿文件
+hf cache prune</code></pre>
+
+<div class="note">
+<strong>两个实用技巧。</strong>① 缓存路径可用环境变量整体搬走，模型多了建议放到大容量盘：<code>export HF_HOME=/Volumes/data/hf</code>。② 完全离线跑时设 <code>export HF_HUB_OFFLINE=1</code>，程序只用本地缓存，不会因为探测网络而卡启动。
+</div>
+
+<h2 id="s5"><span class="idx">05</span>国内网络加速</h2>
+
+<p>默认访问的是境外的 <code>huggingface.co</code>，小文件还能忍，几 GB 的权重基本会卡在 0% 或者中途断掉。解法是换一个端点：</p>
+
+<figure>
+<svg viewBox="0 0 680 300" role="img" xmlns="http://www.w3.org/2000/svg">
+<title>直连与国内镜像两条下载链路对比</title>
+<desc>直连 huggingface.co 走跨境链路，速度慢且大文件容易中断；改用 hf-mirror.com 镜像后走国内链路，由镜像回源缓存，只需设置一个环境变量。</desc>
+<defs>
+<marker id="a3" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+<path d="M2 1L8 5L2 9" fill="none" stroke="context-stroke" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+</marker>
+</defs>
+<text x="40" y="52" font-size="13" font-weight="500" fill="#A32D2D">方式一 · 直连</text>
+<rect x="40" y="62" width="150" height="52" rx="8" fill="var(--d-neutral-fill)" stroke="var(--d-neutral-stroke)" stroke-width="0.5"/>
+<text x="115" y="88" font-size="14" font-weight="500" fill="var(--d-neutral-text)" text-anchor="middle" dominant-baseline="central">你的机器</text>
+<line x1="196" y1="88" x2="282" y2="88" stroke="#A32D2D" stroke-width="1.5" stroke-dasharray="4 3" marker-end="url(#a3)"/>
+<text x="239" y="78" font-size="12" fill="#A32D2D" text-anchor="middle">跨境链路</text>
+<rect x="286" y="62" width="150" height="52" rx="8" fill="var(--d-amber-fill)" stroke="#A32D2D" stroke-width="0.5"/>
+<text x="361" y="88" font-size="14" font-weight="500" fill="var(--d-amber-text)" text-anchor="middle" dominant-baseline="central">huggingface.co</text>
+<text x="452" y="92" font-size="12" fill="#A32D2D">慢 · 大文件易中断</text>
+<text x="40" y="170" font-size="13" font-weight="500" fill="var(--d-teal-stroke)">方式二 · 走国内镜像（推荐）</text>
+<rect x="40" y="180" width="140" height="52" rx="8" fill="var(--d-neutral-fill)" stroke="var(--d-neutral-stroke)" stroke-width="0.5"/>
+<text x="110" y="206" font-size="14" font-weight="500" fill="var(--d-neutral-text)" text-anchor="middle" dominant-baseline="central">你的机器</text>
+<line x1="186" y1="206" x2="232" y2="206" stroke="var(--d-teal-stroke)" stroke-width="1.5" marker-end="url(#a3)"/>
+<text x="209" y="196" font-size="12" fill="var(--d-teal-sub)" text-anchor="middle">国内</text>
+<rect x="236" y="180" width="160" height="52" rx="8" fill="var(--d-teal-fill)" stroke="var(--d-teal-stroke)" stroke-width="0.5"/>
+<text x="316" y="198" font-size="14" font-weight="500" fill="var(--d-teal-text)" text-anchor="middle" dominant-baseline="central">hf-mirror.com</text>
+<text x="316" y="216" font-size="13" fill="var(--d-teal-sub)" text-anchor="middle" dominant-baseline="central">国内公益镜像</text>
+<line x1="402" y1="206" x2="448" y2="206" stroke="var(--d-teal-stroke)" stroke-width="1.5" marker-end="url(#a3)"/>
+<text x="425" y="196" font-size="12" fill="var(--d-teal-sub)" text-anchor="middle">回源</text>
+<rect x="452" y="180" width="168" height="52" rx="8" fill="var(--d-teal-fill)" stroke="var(--d-teal-stroke)" stroke-width="0.5"/>
+<text x="536" y="198" font-size="14" font-weight="500" fill="var(--d-teal-text)" text-anchor="middle" dominant-baseline="central">huggingface.co</text>
+<text x="536" y="216" font-size="13" fill="var(--d-teal-sub)" text-anchor="middle" dominant-baseline="central">原始仓库</text>
+<rect x="40" y="246" width="600" height="34" rx="8" fill="var(--d-neutral-fill)" stroke="var(--d-neutral-stroke)" stroke-width="0.5"/>
+<text x="56" y="266" font-size="12" fill="var(--d-neutral-text)" font-family="ui-monospace, SFMono-Regular, Menlo, monospace">export HF_ENDPOINT=https://hf-mirror.com</text>
+</svg>
+</figure>
+<p class="cap">图 3　换一个 endpoint，链路就留在国内</p>
+
+<h3>设置方法</h3>
+<p>镜像只认一个环境变量 <code>HF_ENDPOINT</code>，设完之后 <code>hf</code> 命令行、<code>transformers</code>、<code>datasets</code> 全都会自动跟着走。</p>
+
+<pre><code># macOS / Linux —— 临时生效（当前这个终端窗口）
+export HF_ENDPOINT=https://hf-mirror.com
+
+# macOS / Linux —— 永久生效，写进 shell 配置
+echo 'export HF_ENDPOINT=https://hf-mirror.com' &gt;&gt; ~/.zshrc
+source ~/.zshrc
+
+# Windows PowerShell —— 临时
+$env:HF_ENDPOINT = "https://hf-mirror.com"
+
+# Windows —— 永久（写进用户环境变量，重开终端生效）
+setx HF_ENDPOINT "https://hf-mirror.com"</code></pre>
+
+<p>验证是否真的生效：</p>
+<pre><code>hf env | grep -i endpoint
+# 应输出 HF_ENDPOINT=https://hf-mirror.com
+
+# 或者直接下个小模型试试速度
+hf download Qwen/Qwen3-0.6B --local-dir /tmp/qwen3-test</code></pre>
+
+<div class="note">
+<strong>只设环境变量，不要动 <code>git</code> 的 remote。</strong>镜像只是把 HTTPS 请求改到国内，仓库地址仍然用官方的那套路径；手动改 git remote 反而会导致 <code>hf upload</code> 走错地方。
+</div>
+
+<h3>再快一点</h3>
+<table>
+<tr><th>手段</th><th>说明</th></tr>
+<tr><td><code>HF_XET_HIGH_PERFORMANCE=1</code></td><td>启用 Xet 分块传输的高性能模式，<code>huggingface_hub</code> 1.x 默认已装好 <code>hf_xet</code></td></tr>
+<tr><td><code>--max-workers 8</code></td><td>提高并发数，网络稳定时有效</td></tr>
+<tr><td>先 <code>--dry-run</code></td><td>看清总共要下多少、有哪些用不上的格式（<code>.bin</code> / <code>.msgpack</code>），再用 <code>--include</code> 精准下载</td></tr>
+<tr><td>大容量缓存盘</td><td><code>export HF_HOME=/大容量盘/hf</code>，避免反复删了又下</td></tr>
+</table>
+
+<p class="sub" style="font-size:13px;color:var(--fg-muted)">
+注：老教程里的 <code>hf_transfer</code>（<code>pip install hf_transfer</code> + <code>HF_HUB_ENABLE_HF_TRANSFER=1</code>）在 <code>huggingface_hub</code> 1.0 中已被 <code>hf_xet</code> 取代，新环境不必再装。
+</p>
+
+<h2 id="s6"><span class="idx">06</span>上传与仓库管理</h2>
+
+<h3>建仓库</h3>
+<p>最直观的方式是网页右上角 <strong>New → Model / Dataset / Space</strong>。也可以跳过这步：<code>hf upload</code> 在目标仓库不存在时会<strong>自动创建</strong>。</p>
+
+<h3>上传</h3>
+<pre><code>hf upload REPO_ID LOCAL_PATH [选项...]
+
+# 传单个文件
+hf upload username/my-cool-model ./model.safetensors
+
+# 传整个目录（本地目录内容会成为仓库根目录）
+hf upload username/my-cool-model ./my-model-folder
+
+# 传一份数据集
+hf upload username/my-dataset ./data --type dataset
+
+# 建私有仓库 + 自定义 commit 信息
+hf upload username/my-model ./my-model-folder --private --commit-message "add v2 weights"
+
+# 顺手删掉仓库里已经没用的旧文件
+hf upload username/my-model ./my-model-folder --delete "old/*"
+
+# 先提 PR 而不直接改主干
+hf upload username/my-model ./my-model-folder --create-pr</code></pre>
+
+<h3>上传参数</h3>
+<table>
+<tr><th>参数</th><th>作用</th></tr>
+<tr><td><code>--private</code></td><td>创建时设为私有仓库</td></tr>
+<tr><td><code>--type model|dataset|space</code></td><td>指定仓库类型</td></tr>
+<tr><td><code>--include / --exclude</code></td><td>按模式挑选要传的文件</td></tr>
+<tr><td><code>--delete "old/*"</code></td><td>上传同时删除远端匹配路径</td></tr>
+<tr><td><code>--commit-message</code> / <code>--commit-description</code></td><td>自定义提交信息</td></tr>
+<tr><td><code>--create-pr</code></td><td>走 Pull Request 流程，便于多人协作审核</td></tr>
+<tr><td><code>--every 10</code></td><td>每 10 分钟自动提交一次，适合边训练边传 checkpoint</td></tr>
+</table>
+
+<div class="note">
+<strong>超过几 GB 的目录用 <code>hf upload-large-folder</code>。</strong>它带断点续传，网络中断后重跑不会从头开始，最后还能用 <code>hf cache verify</code> 校验完整性。注意在最新版本里该命令已标记为 deprecated（官方建议直接用 <code>hf upload</code>），但大目录场景下它的续传体验仍然更好，看你装的版本支持哪个。
+</div>
+
+<h3>另一种路线：git</h3>
+<p>需要精细控制分支、历史或者接进现有 Git 流程时，可以直接当普通 git 仓库操作。大文件由 git-lfs 托管：</p>
+<pre><code>pip install -U "huggingface_hub[cli]"   # 同时提供 hf 命令用于配好认证
+git lfs install
+hf auth login --add-to-git-credential
+
+git clone https://huggingface.co/username/my-model
+cd my-model
+git lfs track "*.safetensors"          # 让大文件走 LFS
+git add .
+git commit -m "add weights"
+git push</code></pre>
+
+<h3>顺带一提：buckets</h3>
+<p>如果你只是想要一块云端存储放 checkpoint、日志或中间产物，不需要「仓库 + 版本 + README」这套结构，用 bucket 更合适：</p>
+<pre><code>hf buckets create my-bucket --private
+hf buckets sync ./checkpoints hf://buckets/username/my-bucket   # 双向同步目录
+hf buckets cp ./run.log hf://buckets/username/my-bucket/run.log
+hf buckets list</code></pre>
+
+<h2 id="s7"><span class="idx">07</span>在 Python 里调用</h2>
+
+<h3>装依赖</h3>
+<pre><code>pip install -U transformers torch</code></pre>
+
+<h3>最简用法：三行跑起来</h3>
+<pre><code>from transformers import pipeline
+
+pipe = pipeline("text-generation", model="Qwen/Qwen3-0.6B")
+print(pipe("你好，请用一句话介绍杭州：", max_new_tokens=64))</code></pre>
+<p>第一次运行会自动下载权重到缓存目录。想改成从别处加载或避免重复检查，可以直接指定本地目录：<code>model="./qwen3"</code>。</p>
+
+<h3>用 huggingface_hub 只管搬运</h3>
+<p>只想下载、不想拉整个 <code>transformers</code> 时，<code>huggingface_hub</code> 就够了：</p>
+<pre><code>from huggingface_hub import snapshot_download, hf_hub_download, HfApi, login
+
+login()  # 交互式登录，等价于 hf auth login
+
+# 整仓下载到指定目录
+snapshot_download(repo_id="Qwen/Qwen3-0.6B", local_dir="./qwen3")
+
+# 只要其中一个文件，返回值是文件的本地路径
+p = hf_hub_download(repo_id="Qwen/Qwen3-0.6B", filename="config.json")
+print(p)
+
+# 排除体积大的格式
+snapshot_download(
+    repo_id="Qwen/Qwen3-0.6B",
+    local_dir="./qwen3-lite",
+    ignore_patterns=["*.bin", "*.h5"],
+)
+
+# 上传目录
+api = HfApi()
+api.upload_folder(
+    folder_path="./my-model",
+    repo_id="username/my-model",
+    repo_type="model",
+)</code></pre>
+
+<p>代码里也可以不登录，靠环境变量：<code>export HF_TOKEN=hf_xxx</code> 后所有 SDK 调用都会自动带上认证。</p>
+
+<div class="note">
+<strong>transformers v5 的几个变化（2026-01 发布）。</strong>这是一次动了地基的大版本：<br>
+① <strong>只支持 PyTorch</strong>，TensorFlow 与 JAX/Flax 支持已整体移除，老的 TF 代码需要迁移；<br>
+② 分词器统一走 <code>tokenizers</code> 后端，不再区分 <code>fast</code>/<code>slow</code>，<code>use_fast=</code> 这类参数正在退场；<br>
+③ 图像处理器只保留 torchvision 支持的 fast 版本；<br>
+④ 量化从「一堆加载开关」变成一等配置对象；<br>
+⑤ 定位调整为<strong>模型定义层</strong> —— 训练交给第三方 trainer，服务化交给 vLLM / SGLang，导出交给 llama.cpp / ExecuTorch / MLX。<br>
+连带的一条：<strong>TGI（Text Generation Inference）已归档</strong>，官方现在推荐用 vLLM 或 SGLang 做服务端推理，新项目别再从 TGI 起步。
+</div>
+
+<h2 id="s8"><span class="idx">08</span>Spaces 部署一个应用</h2>
+
+<p>Spaces 是跑在 Hub 上的应用托管，免费档够做 demo。网页 <strong>New → Space</strong>，选 SDK（Gradio 最省事）和可见性即可。</p>
+
+<h3>仓库里必有的三个文件</h3>
+<pre><code>my-space/
+├── app.py              # 入口，Gradio 应用写这里
+├── requirements.txt    # 依赖，Hub 会自动 pip install
+└── README.md           # 顶部 front matter 决定标题、SDK、硬件</code></pre>
+
+<p><code>README.md</code> 的 front matter 是关键配置，写错了应用起不来：</p>
+<pre><code>---
+title: My First Space
+colorFrom: blue
+colorTo: green
+sdk: gradio
+sdk_version: 5.0.0
+app_file: app.py
+pinned: false
+---</code></pre>
+
+<p>一个能跑的最小 <code>app.py</code>：</p>
+<pre><code>import gradio as gr
+
+def greet(name):
+    return f"你好，{name}！"
+
+gr.Interface(fn=greet, inputs="text", outputs="text").launch()</code></pre>
+
+<h3>部署与更新</h3>
+<pre><code># 把本地目录推上去（仓库不存在会自动建）
+hf upload username/my-space ./my-space --type space
+
+# 只改了一个文件
+hf upload username/my-space ./my-space/app.py --type space
+
+# 或者用 git 推送，改动会触发自动重新构建
+git clone https://huggingface.co/spaces/username/my-space
+cd my-space &amp;&amp; git add . &amp;&amp; git commit -m "update" &amp;&amp; git push</code></pre>
+
+<p>推上去之后 Hub 会自动构建，日志在 Space 的 <strong>Logs</strong> 标签页里看。硬件默认 CPU basic（免费），需要 GPU 可在 <em>Settings → Hardware</em> 里换（按小时计费）。</p>
+
+<p>除了 Spaces，还有一条托管路线是 <strong>Inference Endpoints</strong>，把模型部署成带自动扩缩容的 API：相关命令在 <code>hf endpoints</code> 下。</p>
+
+<h2 id="s9"><span class="idx">09</span>排障速查表</h2>
+
+<table>
+<tr><th>现象</th><th>原因</th><th>处理</th></tr>
+<tr><td><code>command not found: huggingface-cli</code></td><td>该命令已在 <code>huggingface_hub</code> 1.0 中移除</td><td>改用 <code>hf</code>，登录改用 <code>hf auth login</code></td></tr>
+<tr><td><code>hf: command not found</code></td><td>装到了不在 PATH 的目录</td><td>用 <code>pip install -U "huggingface_hub[cli]"</code> 重装，或把 <code>~/.local/bin</code> 加进 PATH</td></tr>
+<tr><td>下载长期停在 0%</td><td>跨境链路</td><td><code>export HF_ENDPOINT=https://hf-mirror.com</code> 后用 <code>hf env</code> 确认已生效</td></tr>
+<tr><td>跑得很慢但 <code>hf env</code> 显示 endpoint 正常</td><td>环境变量只在当前终端生效，程序在别处启动</td><td>写进 <code>~/.zshrc</code> / <code>~/.bashrc</code>，或改用 <code>setx</code>（Windows）</td></tr>
+<tr><td><code>401 Unauthorized</code></td><td>没登录或 Token 无效</td><td><code>hf auth login</code>，再用 <code>hf auth whoami</code> 确认账号</td></tr>
+<tr><td><code>403</code> / <code>You need to agree to share your contact information</code></td><td>gated 模型未接受许可</td><td>打开模型页点 Agree；部分还需要等作者审批</td></tr>
+<tr><td><code>error: unexpected argument '--type'</code></td><td>CLI 版本偏旧</td><td>换成 <code>--repo-type</code>，或 <code>hf update</code> 升级</td></tr>
+<tr><td>缓存目录里全是看不懂的软链接和哈希名</td><td>这是 snapshots + blobs 的正常结构</td><td>想要普通文件就加 <code>--local-dir</code></td></tr>
+<tr><td>磁盘被吃满</td><td>每个 commit 都留了一份视图</td><td><code>hf cache list</code> 找到大户 → <code>hf cache rm &lt;repo&gt;</code> → <code>hf cache prune</code></td></tr>
+<tr><td>上传中途断掉，重跑又从 0 开始</td><td>单次 commit 太大</td><td>换 <code>hf upload-large-folder</code>（支持续传），并按目录拆分</td></tr>
+<tr><td>文件下载完但加载报损坏</td><td>传输不完整</td><td><code>hf cache verify &lt;repo_id&gt;</code> 校验，然后加 <code>--force-download</code> 重下</td></tr>
+<tr><td>离线环境下启动特别慢</td><td>程序在探测网络</td><td><code>export HF_HUB_OFFLINE=1</code>，只用本地缓存</td></tr>
+<tr><td>不想上报使用统计</td><td>——</td><td><code>export HF_HUB_DISABLE_TELEMETRY=1</code></td></tr>
+</table>
+
+<h3>诊断顺序</h3>
+<div class="flow" style="grid-template-columns:repeat(4,minmax(0,1fr))">
+  <div class="step"><span class="n">1</span><b>看环境</b><i>hf env</i></div>
+  <div class="step"><span class="n">2</span><b>看账号</b><i>hf auth whoami</i></div>
+  <div class="step"><span class="n">3</span><b>看缓存</b><i>hf cache list</i></div>
+  <div class="step"><span class="n">4</span><b>加 -v 重跑</b><i>hf download -v</i></div>
+</div>
+
+<h2 id="s10"><span class="idx">10</span>一页速查卡</h2>
+
+<pre><code># ---------- 环境 ----------
+pip install -U "huggingface_hub[cli]"
+hf version && hf env
+export HF_ENDPOINT=https://hf-mirror.com      # 国内加速
+export HF_TOKEN=hf_xxx                        # 非交互认证
+export HF_HOME=/大容量盘/hf                    # 缓存搬家
+
+# ---------- 认证 ----------
+hf auth login            # 登录
+hf auth whoami           # 当前账号
+hf auth list             # 已有 token
+hf auth switch           # 多账号切换
+
+# ---------- 下载 ----------
+hf download Qwen/Qwen3-0.6B --local-dir ./qwen3
+hf download Qwen/Qwen3-0.6B --include "*.safetensors" "*.json"
+hf download Qwen/Qwen3-0.6B --dry-run
+hf download --type dataset wikitext --local-dir ./wikitext
+hf download --type space user/space --local-dir ./space
+
+# ---------- 缓存 ----------
+hf cache list
+hf cache list --revisions
+hf cache rm Qwen/Qwen3-0.6B
+hf cache prune
+hf cache verify Qwen/Qwen3-0.6B
+
+# ---------- 上传 ----------
+hf upload username/my-model ./model.safetensors
+hf upload username/my-model ./folder --private --commit-message "v2"
+hf upload username/my-dataset ./data --type dataset
+hf upload username/my-space ./my-space --type space
+hf upload-large-folder username/my-model ./big-folder     # 大目录续传
+
+# ---------- 存储桶 ----------
+hf buckets create my-bucket --private
+hf buckets sync ./checkpoints hf://buckets/username/my-bucket
+hf buckets list
+
+# ---------- 其他 ----------
+hf models ls             # 浏览模型
+hf datasets info wikitext
+hf jobs run python:3.12 python -c "print('hi')"
+hf endpoints             # 管理推理端点
+hf discussions list username/my-model
+hf update                # 升级 CLI 自身
+hf --help                # 发现更多</code></pre>
+
+<footer>
+  <p>本指南基于 <code>huggingface_hub</code> 1.x 与 <code>transformers</code> 5.x 整理，核对时间 2026-09。<br>
+  CLI 迭代很快（现在已是每周发布节奏），遇到参数对不上时先跑 <code>hf &lt;命令&gt; --help</code> 以本地实际输出为准。<br>
+  官方文档：<a href="https://huggingface.co/docs/huggingface_hub">huggingface.co/docs/huggingface_hub</a>　国内镜像：<a href="https://hf-mirror.com">hf-mirror.com</a></p>
+</footer>
+
+</div>
+</body>
+</html>
