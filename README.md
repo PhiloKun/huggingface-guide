@@ -2,7 +2,13 @@
 
 一份面向中文网络环境的 Hugging Face 实操手册，单文件 HTML，图文并茂，可直接离线打开或打印。
 
-在线访问：**https://philokun.github.io/huggingface-guide/**
+| 位置 | 地址 |
+| --- | --- |
+| 在线访问（GitHub Pages） | https://philokun.github.io/huggingface-guide/ |
+| GitHub 仓库 | https://github.com/PhiloKun/huggingface-guide |
+| Gitee 镜像 | https://gitee.com/PhiloKun/huggingface-guide |
+
+> Gitee 侧仅作代码镜像。Gitee Pages 已被官方标记为功能下线，站点只在 GitHub Pages 发布。
 
 ## 这份指南解决什么问题
 
